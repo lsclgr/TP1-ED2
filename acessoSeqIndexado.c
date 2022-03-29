@@ -8,15 +8,14 @@ typedef struct {
     int key;
 } Index;
 
-// definição de um item do arquivo de dados jjj
+// definição de um item do arquivo de dados
 typedef struct {
     char title[32];
     int key;
     float price;
 } Item;
 
-int search(Index tab[], int size, Item *item, FILE *fp)
-{
+int search(Index tab[], int size, Item *item, FILE *fp) {
     Item page[PAG_SIZE];
     int i, itemCount;
     long desloc;
@@ -28,14 +27,10 @@ int search(Index tab[], int size, Item *item, FILE *fp)
     // caso a key desejada seja menor que a 1a key, o item não existe no arquivo
     if (i == 0)
         return 0;
-    else
-    { // a ultima página pode não estar completa
-        if (i < size)
-        {
+    else {  // a ultima página pode não estar completa
+        if (i < size) {
             itemCount = PAG_SIZE;
-        }
-        else
-        {
+        } else {
             fseek(fp, 0, SEEK_END);
             itemCount = (ftell(fp) / sizeof(Item)) % PAG_SIZE;
         }
@@ -46,10 +41,8 @@ int search(Index tab[], int size, Item *item, FILE *fp)
         fread(&page, sizeof(Item), itemCount, fp);
 
         // pesquisa sequencial na página lida
-        for (i = 0; i < itemCount; i++)
-        {
-            if (page[i].key == item->key)
-            {
+        for (i = 0; i < itemCount; i++) {
+            if (page[i].key == item->key) {
                 *item = page[i];
                 return 1;
             }
@@ -59,16 +52,14 @@ int search(Index tab[], int size, Item *item, FILE *fp)
     }
 }
 
-int main()
-{
+int main() {
     Index tabela[TAB_SIZE];
     FILE *fp;
     Item x;
     int pos, cont;
 
     // abre o arquivo de dados
-    if ((fp = fopen("livros.bin", "rb")) == NULL)
-    {
+    if ((fp = fopen("livros.bin", "rb")) == NULL) {
         printf("Erro na abertura do arquivo\n");
         return 0;
     }
@@ -76,11 +67,9 @@ int main()
     // gera a tabela de índice das páginas
     cont = 0;
     pos = 0;
-    while (fread(&x, sizeof(x), 1, fp) == 1)
-    {
+    while (fread(&x, sizeof(x), 1, fp) == 1) {
         cont++;
-        if (cont % PAG_SIZE == 1)
-        {
+        if (cont % PAG_SIZE == 1) {
             tabela[pos].key = x.key;
             pos++;
         }
