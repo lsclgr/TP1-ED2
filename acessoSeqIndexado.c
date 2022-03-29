@@ -8,7 +8,7 @@ typedef struct {
     int key;
 } Index;
 
-// definição de um item do arquivo de dados
+// definição de um item do arquivo de dados jjj
 typedef struct {
     char title[32];
     int key;
