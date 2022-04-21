@@ -34,9 +34,11 @@ void build_file(int nPages, int page_size, int data_max, int key_dif) // creates
     FILE *fp = fopen("file.bin", "wb");
     test_file(fp);
 
+    fwrite(&nPages, sizeof(int), 1, fp);
+
     Page page;
     page.arr[page_size - 1].key = 0;
-    for(int i = 0; i < nPages; i++)
+    for(int i = 0; i < (nPages - 1); i++)
     {
         page.arr[0].key = page.arr[page_size - 1].key + rand_num_by_max(key_dif);
         page.arr[0].data1 = rand_num_by_max(data_max);
