@@ -3,9 +3,12 @@
 
     #define PAGE_SIZE 4
 
+    typedef int Key;
+
     typedef struct {
-        int key;
-        int data;
+        Key key;
+        long int data1;
+        char data2[DATA2_SIZE + 1];
     } Item;
 
     typedef struct {
@@ -13,6 +16,7 @@
     } Page;
 
     typedef struct {
-        
+        Key *arr;
+        int nPages;
     } Index;
 #endif

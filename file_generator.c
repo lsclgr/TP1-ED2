@@ -22,7 +22,7 @@ int rand_num_by_max(int max)
     return 1 + rand() % max;
 }
 
-void createString(int max_size, char str)
+void createString(int max_size, char str[])
 {
     int size = rand_num_by_max(max_size);
     for(int i = 0; i < size; i++)
@@ -31,7 +31,7 @@ void createString(int max_size, char str)
 
 void build_file(int nPages, int page_size, int data_max, int key_dif) // creates a file with random data
 {
-    FILE *fp = fopen("file.bin", "wb");
+    FILE *fp = fopen("data.bin", "wb");
     test_file(fp);
 
     fwrite(&nPages, sizeof(int), 1, fp);
