@@ -7,8 +7,8 @@ typedef struct {
     long long int dado1;
     char *dado2;
 } info;
-void gen_random(char *s, const int len) {
-    srand(time(NULL));
+void gen_random(char *s, const int len, int timex) {
+    srand(timex);
     static const char alphanum[] =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
@@ -21,28 +21,41 @@ void gen_random(char *s, const int len) {
 
 int main() {
     FILE *arq;
-
-    srand(time(NULL));
-    arq = fopen("arquivo.dat", "wb");
+    int timex = time(NULL);
+    
+    arq = fopen("arquivo.bin", "wb+");
     if (!arq) {
         printf("Erro na abertura do arquivo. Fim de programa.");
         exit(1);
     }
-    int len = 5000, tam = 100, ret;
+    int len = 10, tam = 5, ret;
     info x;
 
     for (int i = 0; i < tam; i++) {
+        srand(timex);
         x.chave = i;
         x.dado1 = rand() % 2147483647;
-        usleep(1000000);
         printf("%lld\n", x.dado1);
         x.dado2 = (char *)malloc(len * sizeof(char));
-        gen_random(x.dado2, len);
-        ret = fwrite(&x, sizeof(info *), 1, arq);
-        // if (ret)
-        //     printf("Gravou %d valores com sucesso!\n", ret);
-        // else
-        //     printf("Erro ao gravar...\n");
+        gen_random(x.dado2, len, timex);
+        ret = fwrite(&x, sizeof(info), 1, arq);
+        printf("%d Salvo\n",ret);
+        timex++;
+    }
+    fclose(arq);
+
+    arq = fopen("arquivo.bin", "rb+");
+    if (!arq) {
+        printf("Erro na abertura do arquivo. Fim de programa.");
+        exit(1);
+    }
+    info opa;
+
+    for (int i = 0; i < tam; i++) {
+        ret = fread(&opa,sizeof(info),1,arq);
+        printf("%d\n", ret);
+
+        printf("\n%d\n%lld\n%s\n",opa.chave,opa.dado1,opa.dado2);
     }
     fclose(arq);
     return 0;
