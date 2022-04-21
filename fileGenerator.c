@@ -28,7 +28,7 @@ int main() {
         printf("Erro na abertura do arquivo. Fim de programa.");
         exit(1);
     }
-    int len = 10, tam = 5, ret;
+    int len = 5000, tam = 5, ret;
     info x;
 
     for (int i = 0; i < tam; i++) {
@@ -39,7 +39,6 @@ int main() {
         x.dado2 = (char *)malloc(len * sizeof(char));
         gen_random(x.dado2, len, timex);
         ret = fwrite(&x, sizeof(info), 1, arq);
-        printf("%d Salvo\n",ret);
         timex++;
     }
     fclose(arq);
@@ -53,9 +52,6 @@ int main() {
 
     for (int i = 0; i < tam; i++) {
         ret = fread(&opa,sizeof(info),1,arq);
-        printf("%d\n", ret);
-
-        printf("\n%d\n%lld\n%s\n",opa.chave,opa.dado1,opa.dado2);
     }
     fclose(arq);
     return 0;
