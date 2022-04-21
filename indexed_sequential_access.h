@@ -1,7 +1,12 @@
 #ifndef indexed_sequential_acess_h
     #define indexed_sequential_acess_h
 
+    #include <limits.h>
+
     #define PAGE_SIZE 4
+    #define DATA1_MAX LONG_MAX
+    #define DATA2_SIZE 5000
+    #define KEY_DIF 5
 
     typedef int Key;
 
@@ -19,4 +24,6 @@
         Key *arr;
         int nPages;
     } Index;
+
+    void create_index(Index *pIndex);
 #endif

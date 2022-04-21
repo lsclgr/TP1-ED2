@@ -22,7 +22,7 @@ int rand_num_by_max(int max)
     return 1 + rand() % max;
 }
 
-void createString(int max_size, char str[])
+void create_string(int max_size, char str[])
 {
     int size = rand_num_by_max(max_size);
     for(int i = 0; i < size; i++)
