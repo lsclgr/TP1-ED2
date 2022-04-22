@@ -23,15 +23,15 @@ void isam_create_index(Index *pIndex)
     fclose(fp);
 }
 
-Item* isam_binary_search(Key key, Page page, int l, int r, int type)
+Item* isam_binary_search(Key key, Page *page, int l, int r, int type)
 {
     int m = (l + r) / 2;
 
-    if(page.arr[m].key != key && l == r)
+    if(page->arr[m].key != key && l == r)
         return NULL;
-    else if(page.arr[m].key == key)
-        return &page.arr[m];
-    else if((page.arr[m].key < key && type == 1) || (page.arr[m].key > key && type == 2))
+    else if(page->arr[m].key == key)
+        return &page->arr[m];
+    else if((page->arr[m].key < key && type == 1) || (page->arr[m].key > key && type == 2))
         return binary_search(key, page, l, m - 1, type);
     else
         return binary_search(key, page, m + 1, r, type);
@@ -80,33 +80,45 @@ bool isam_item_search(Key key, Item *pItem, Index *pIndex, int status)
     test_file(fp);
 
     Page page;
+    int n_items;
 
     fseek(fp, PAGE_SIZE * (i - 1) * sizeof(Item), SEEK_SET + sizeof(int));
     if(i != pIndex->nPages)
     {
         fread(page.arr, sizeof(Page), 1, fp);
-        int n_items = PAGE_SIZE;
+        n_items = PAGE_SIZE;
     }
     else
     {
         fseek(fp, 0, SEEK_END);
         int item_total_qtt = ftell(fp) / sizeof(Item);
-        int n_items = item_total_qtt % PAGE_SIZE;
+        n_items = item_total_qtt % PAGE_SIZE;
         fread(page.arr, sizeof(Item), n_items, fp);
     }
 
-    Item item_found;
-    if(status == 1)
+    fclose(fp);
+
+    Item *item_found;
+    if(status == 1 || status == 2)
+        item_found = isam_binary_search(key, &page, 0, n_items - 1, status);
+    else
+        item_found = isam_linear_search(key, &page, n_items);
+
+    if(item_found)
     {
-        item_found = isam_linear_search();
-        isam_copy_item();
+        isam_copy_item(item_found, pItem);
+        return true;
     }
-    
-    // (...)
+    else
+    {
+        return false;
+    }
 }
 
 int main()
 {
     srand(time(NULL));
+
+    return 0;
 }
 
