@@ -9,7 +9,7 @@
 
 void isam_create_index(Index *pIndex)
 {
-    FILE fp = fopen("data.bin", "rb");
+    FILE *fp = fopen("data.bin", "rb");
     test_file(fp);
 
     fread(&pIndex->nPages, sizeof(int), 1, fp);
@@ -32,9 +32,9 @@ Item* isam_binary_search(Key key, Page *page, int l, int r, int type)
     else if(page->arr[m].key == key)
         return &page->arr[m];
     else if((page->arr[m].key < key && type == 1) || (page->arr[m].key > key && type == 2))
-        return binary_search(key, page, l, m - 1, type);
+        return isam_binary_search(key, page, l, m - 1, type);
     else
-        return binary_search(key, page, m + 1, r, type);
+        return isam_binary_search(key, page, m + 1, r, type);
 }
 
 /*
@@ -56,7 +56,7 @@ Item* isam_desc_binary_search(Key key, Page page, int l, int r)
 Item* isam_linear_search(Key key, Page *page, int n_items)
 {
     for(int i = 0; i < n_items; i++)
-        if(page.arr[i].key == key)
+        if(page->arr[i].key == key)
             return &page->arr[i];
     
     return NULL;
@@ -76,7 +76,7 @@ bool isam_item_search(Key key, Item *pItem, Index *pIndex, int status)
     
     if(i == 0) return false;
 
-    FILE fp = fopen("data.bin", "rb");
+    FILE *fp = fopen("data.bin", "rb");
     test_file(fp);
 
     Page page;

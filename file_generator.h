@@ -7,6 +7,6 @@
 
     void test_file(FILE *fp);
     int rand_num_by_max(int max);
-    void create_string(int max_size, char str);
+    void create_string(int max_size, char str[]);
     void build_file(int nPages, int page_size, int data_max, int key_dif);
 #endif

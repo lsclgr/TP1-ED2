@@ -2,6 +2,7 @@
     #define indexed_sequential_acess_h
 
     #include <limits.h>
+    #include <stdbool.h>
 
     #define PAGE_SIZE 4
     #define DATA1_MAX LONG_MAX
@@ -26,4 +27,8 @@
     } Index;
 
     void create_index(Index *pIndex);
+    Item* isam_binary_search(Key key, Page *page, int l, int r, int type);
+    Item* isam_linear_search(Key key, Page *page, int n_items);
+    void isam_copy_item(Item *i1, Item *i2);
+    bool isam_item_search(Key key, Item *pItem, Index *pIndex, int status);
 #endif

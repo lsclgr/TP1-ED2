@@ -42,11 +42,11 @@ void build_file(int nPages, int page_size, int data_max, int key_dif) // creates
     {
         page.arr[0].key = page.arr[page_size - 1].key + rand_num_by_max(key_dif);
         page.arr[0].data1 = rand_num_by_max(data_max);
-        createString(page.arr[0].data2);
+        create_string(DATA2_SIZE, page.arr[0].data2);
         for(int j = 1; j < page_size; j++)
         {
             page.arr[j].data1 = rand_num_by_max(data_max);
-            createString(page.arr[j].data2);
+            create_string(DATA2_SIZE, page.arr[0].data2);
             page.arr[j].key = page.arr[j - 1].key + rand_num_by_max(key_dif);
         }
 
@@ -58,7 +58,7 @@ void build_file(int nPages, int page_size, int data_max, int key_dif) // creates
     {
         Item item;
         item.data1 = rand_num_by_max(data_max);
-        createString(item.data2);
+        create_string(DATA2_SIZE, item.data2);
         item.key = rand_num_by_max(key_dif);
 
         fwrite(&item, sizeof(Item), 1, fp);
