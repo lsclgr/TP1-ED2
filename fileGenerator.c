@@ -22,7 +22,7 @@ void gen_random(char *s, const int len, int timex) {
 int main() {
     FILE *arq;
     int timex = time(NULL);
-    
+
     arq = fopen("arquivo.bin", "wb+");
     if (!arq) {
         printf("Erro na abertura do arquivo. Fim de programa.");
@@ -39,6 +39,7 @@ int main() {
         x.dado2 = (char *)malloc(len * sizeof(char));
         gen_random(x.dado2, len, timex);
         ret = fwrite(&x, sizeof(info), 1, arq);
+        printf("salvo");
         timex++;
     }
     fclose(arq);
@@ -49,10 +50,13 @@ int main() {
         exit(1);
     }
     info opa;
-
-    for (int i = 0; i < tam; i++) {
-        ret = fread(&opa,sizeof(info),1,arq);
-    }
+    do {
+        ret = fread(&opa, sizeof(info), 1, arq);
+        if (ret == 0) break;
+        // inserir na arvore
+        printf("%d\n", ret);
+        printf("\n%d\n%lld\n%s\n", opa.chave, opa.dado1, opa.dado2);
+    } while (ret != 0);
     fclose(arq);
     return 0;
 }
