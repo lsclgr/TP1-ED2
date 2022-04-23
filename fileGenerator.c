@@ -1,11 +1,12 @@
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h> /* Para a função exit() */
 #include <time.h>
 
 typedef struct {
-    int chave;
-    long long int dado1;
-    char *dado2;
+    int key;
+    long int data1;
+    char *data2;
 } info;
 void gen_random(char *s, const int len, int timex) {
     srand(timex);
@@ -28,35 +29,65 @@ int main() {
         printf("Erro na abertura do arquivo. Fim de programa.");
         exit(1);
     }
-    int len = 5000, tam = 5, ret;
+    int len = 5000, tam = 200000, ret, op = 0, keys[tam];
     info x;
+    switch (op) {
+        case 0:
+            for (int i = 1; i <= tam; i++) {
+                srand(timex);
+                x.key = i;
+                x.data1 = rand() % LONG_MAX;
+                // printf("%lld\n", x.data1);
+                x.data2 = (char *)malloc(len * sizeof(char));
+                gen_random(x.data2, len, timex);
+                ret = fwrite(&x, sizeof(info), 1, arq);
+                // printf("salvo");
+                timex++;
+            }
+            break;
+        case 1:
+            for (int i = tam; i > 0; i--) {
+                srand(timex);
+                x.key = i;
+                x.data1 = rand() % LONG_MAX;
+                // printf("%lld\n", x.data1);
+                x.data2 = (char *)malloc(len * sizeof(char));
+                gen_random(x.data2, len, timex);
+                ret = fwrite(&x, sizeof(info), 1, arq);
+                // printf("salvo");
+                timex++;
+            }
+            break;
+        case 2:
+            for (int i = 0; i < tam; i++) {
+                srand(timex);
+                x.key = rand() % INT_MAX;
+                int verify = 1;
+                while (verify) {
+                    verify = 0;
+                    for (int j = 0; j < i; i++) {
+                        if (keys[j] == x.key) {
+                            verify = 1;
+                        }
+                    }
+                    x.key = rand() % INT_MAX;
+                }
+                keys[i] = x.key;
+                x.data1 = rand() % LONG_MAX;
+                // printf("%lld\n", x.data1);
+                x.data2 = (char *)malloc(len * sizeof(char));
+                gen_random(x.data2, len, timex);
+                ret = fwrite(&x, sizeof(info), 1, arq);
+                // printf("salvo");
+                timex++;
+            }
+            break;
 
-    for (int i = 0; i < tam; i++) {
-        srand(timex);
-        x.chave = i;
-        x.dado1 = rand() % 2147483647;
-        printf("%lld\n", x.dado1);
-        x.dado2 = (char *)malloc(len * sizeof(char));
-        gen_random(x.dado2, len, timex);
-        ret = fwrite(&x, sizeof(info), 1, arq);
-        printf("salvo");
-        timex++;
+        default:
+            break;
     }
+
     fclose(arq);
 
-    arq = fopen("arquivo.bin", "rb+");
-    if (!arq) {
-        printf("Erro na abertura do arquivo. Fim de programa.");
-        exit(1);
-    }
-    info opa;
-    do {
-        ret = fread(&opa, sizeof(info), 1, arq);
-        if (ret == 0) break;
-        // inserir na arvore
-        printf("%d\n", ret);
-        printf("\n%d\n%lld\n%s\n", opa.chave, opa.dado1, opa.dado2);
-    } while (ret != 0);
-    fclose(arq);
     return 0;
 }
