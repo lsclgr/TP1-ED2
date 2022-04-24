@@ -1,49 +1,55 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#define M 2
-#define MM (M * 2)
+#define order 2
+#define Disquete (order * 2)
 #define FALSE 0
 #define TRUE 1
 
-typedef long Key;
+typedef int Key;
+
+/* Estrutura Registro */
 typedef struct Item {
-    Key key;
-    long long int data1;
-    char *data2;
-    /*outros componentes*/
+    Key key;                                                    // Chave para efetuar a pesquisa 
+    long int data1;                                             // Dado do tipo long
+    char *data2;                                                // Dado do tipo char referente a uma cadei de caracteres
 } Item;
+
 typedef struct Page *Pointer;
+
+/* Estrutura página */
 typedef struct Page {
-    short n;
-    Item r[MM];
-    Pointer p[MM + 1];
+    int n;                                                      // Número de registro contidos na página
+    Item r[Disquete];                                           // Array de registros 
+    Pointer p[Disquete + 1];                                    // Array de apontadores que apontam para os endereços de memória das páginas filhas (quando existem)
 } Page;
 
-bool Inicializa(Pointer *Dict) {
+/* Função responsável por inicializar a árvore */
+bool start_Tree(Pointer *Dict) {
     *Dict = NULL;
-
     return true;
 }
 
-bool Search(Item *x, Pointer Ap) {
-    long i = 1;
-    if (Ap == NULL) {
-        // printf("Item nao esta presente na arvore\n");
+/* Função que efetua a pesquisa de um registro na árvore de maneira recursiva */
+bool Search(Item *item, Pointer Ap) {
+    int i = 1;
+    if (Ap == NULL) {                                           // Indica que ou a árvore não existe (se cair aqui na primeira chamada da função) ou o registro não está na árvore (caso chegue a uma pag folha)
         return false;
     }
-    while (i < Ap->n && x->key > Ap->r[i - 1].key) i++;
-    if (x->key == Ap->r[i - 1].key) {
-        *x = Ap->r[i - 1];
+    while (i < Ap->n && item->key > Ap->r[i - 1].key){          // Laço responsável pela pesquisa dentro da página
+        i++;
+    }
+    if (item->key == Ap->r[i - 1].key) {                        // Condicional responsável por analisar se a cave do registro analisado é igual a do solicitado
+        *item = Ap->r[i - 1];
         return true;
     }
-    if (x->key < Ap->r[i - 1].key)
-        Search(x, Ap->p[i - 1]);
-    else
-        Search(x, Ap->p[i]);
+    if (item->key < Ap->r[i - 1].key)                           // Chama a funcao recursivamente continuando
+        Search(item, Ap->p[i - 1]);                             // a pesquisa através do filho a direita ou 
+    else                                                        // a esquerda dependendo do valor da chave 
+        Search(item, Ap->p[i]);
 }
 
-void InsertOnPage(Pointer Ap, Item Reg, Pointer ApDir) {
+void Insert_On_Page(Pointer Ap, Item Reg, Pointer ApDir) {
     short NaoAchouPosicao;
     int k;
     k = Ap->n;
@@ -63,7 +69,7 @@ void InsertOnPage(Pointer Ap, Item Reg, Pointer ApDir) {
     Ap->n++;
 }
 
-void Ins(Item Reg, Pointer Ap, short *Cresceu, Item *RegRetorno,
+void insert_Item(Item Reg, Pointer Ap, bool *Cresceu, Item *RegRetorno,
          Pointer *ApRetorno) {
     long i = 1;
     long j;
@@ -81,11 +87,11 @@ void Ins(Item Reg, Pointer Ap, short *Cresceu, Item *RegRetorno,
         return;
     }
     if (Reg.key < Ap->r[i - 1].key) i--;
-    Ins(Reg, Ap->p[i], Cresceu, RegRetorno, ApRetorno);
+    insert_Item(Reg, Ap->p[i], Cresceu, RegRetorno, ApRetorno);
     if (!*Cresceu) return;
-    if (Ap->n < MM) /* Pagina tem espaco */
+    if (Ap->n < Disquete) /* Pagina tem espaco */
     {
-        InsertOnPage(Ap, *RegRetorno, *ApRetorno);
+        Insert_On_Page(Ap, *RegRetorno, *ApRetorno);
         *Cresceu = FALSE;
         return;
     }
@@ -93,25 +99,25 @@ void Ins(Item Reg, Pointer Ap, short *Cresceu, Item *RegRetorno,
     ApTemp = (Pointer)malloc(sizeof(Page));
     ApTemp->n = 0;
     ApTemp->p[0] = NULL;
-    if (i < M + 1) {
-        InsertOnPage(ApTemp, Ap->r[MM - 1], Ap->p[MM]);
+    if (i < order + 1) {
+        Insert_On_Page(ApTemp, Ap->r[Disquete - 1], Ap->p[Disquete]);
         Ap->n--;
-        InsertOnPage(Ap, *RegRetorno, *ApRetorno);
+        Insert_On_Page(Ap, *RegRetorno, *ApRetorno);
     } else
-        InsertOnPage(ApTemp, *RegRetorno, *ApRetorno);
-    for (j = M + 2; j <= MM; j++)
-        InsertOnPage(ApTemp, Ap->r[j - 1], Ap->p[j]);
-    Ap->n = M;
-    ApTemp->p[0] = Ap->p[M + 1];
-    *RegRetorno = Ap->r[M];
+        Insert_On_Page(ApTemp, *RegRetorno, *ApRetorno);
+    for (j = order + 2; j <= Disquete; j++)
+        Insert_On_Page(ApTemp, Ap->r[j - 1], Ap->p[j]);
+    Ap->n = order;
+    ApTemp->p[0] = Ap->p[order + 1];
+    *RegRetorno = Ap->r[order];
     *ApRetorno = ApTemp;
 }
 
-void Insere(Item Reg, Pointer *Ap) {
+void insert(Item item, Pointer *Ap) {
     bool Cresceu;
     Item RegRetorno;
     Page *ApRetorno, *ApTemp;
-    Ins(Reg, *Ap, &Cresceu, &RegRetorno, &ApRetorno);
+    insert_Item(item, *Ap, &Cresceu, &RegRetorno, &ApRetorno);
     if (Cresceu) /* Arvore cresce na altura pela raiz */
     {
         ApTemp = (Page *)malloc(sizeof(Page));
@@ -122,62 +128,86 @@ void Insere(Item Reg, Pointer *Ap) {
         *Ap = ApTemp;
     }
 }
-void ImprimeI(Pointer p, int nivel) {
-    long i;
-    if (p == NULL) return;
-    printf("Nivel %d : ", nivel);
-    for (i = 0; i < p->n; i++) printf("%ld ", (long)p->r[i].key);
-    putchar('\n');
-    nivel++;
-    for (i = 0; i <= p->n; i++) ImprimeI(p->p[i], nivel);
-}
-
-void Imprime(Pointer p) {
-    int n = 0;
-    ImprimeI(p, n);
-}
-
-void TestaI(Pointer p, int pai, short direita) {
+/* Funcao que imprime a arvore criada. Ela faz a impressão da pagina pai, depois das páginas filhas à esquerda e depois às da direita */
+void print_out(Pointer p, int nivel) {
     int i;
-    int antecessor = 0;
-    if (p == NULL) return;
-    if (p->r[0].key > pai && direita == FALSE) {
-        printf("Erro: filho %12ld maior que pai %d\n", p->r[0].key, pai);
+    
+    if (p == NULL) {                                    // Caso base da recursão, quando o apontador chega em uma folha
         return;
     }
-    for (i = 0; i < p->n; i++) {
-        if (p->r[i].key <= antecessor) {
-            printf("Erro: irmao %ld maior que irmao a esquerda %d\n",
-                   (long)p->r[i].key, antecessor);
-            return;
-        }
-        antecessor = p->r[i].key;
+
+    printf("Nivel %d : ", nivel);                       
+    
+    for (i = 0; i < p->n; i++){                         // Laço que imprime todos os registros da pagina
+        printf("%d ", p->r[i].key);
     }
-    for (i = 0; i < p->n; i++) TestaI(p->p[i], p->r[i].key, FALSE);
-    TestaI(p->p[p->n], p->r[i].key, TRUE);
+    
+    printf("\n");
+    nivel++;
+    
+    for (i = 0; i <= p->n; i++){                        // Laço que chama recursivamente a funcao mandando como parametro o endereço
+        print_out(p->p[i], nivel);                      // de memoria da pagina filho mais a esquerda até o mais à direita
+    }                                                   
 }
 
-void Testa(Pointer p) {
-    int i;
-    if (p == NULL) return;
-    for (i = 0; i < p->n; i++) TestaI(p->p[i], p->r[i].key, FALSE);
-    TestaI(p->p[p->n], p->r[i].key, TRUE);
+int menu(int operation){
+    printf("Informe qual operacao deseja realizar:\n\n1 - Carregar arquivo\n2 - Pesquisar registro\n0 - Finalizar\n");
+    scanf("%d",&operation);
+
+    return operation;
 }
 
 int main(int argc, char *argv[]) {
-    Item x;
+    Item item_To_Search;
     Page *D;
-    Inicializa(&D);
-    printf("key: ");
-    scanf("%ld%*[^\n]", &x.key);
-    getchar();
-    while (x.key != 0) {
-        Insere(x, &D);
-        Imprime(D);
-        printf("key: ");
-        scanf("%ld%*[^\n]", &x.key);
-        getchar();
+    FILE *file;
+    bool startup = false, search_Item;
+    int operation = -1, ret, nivel = 0;
+    
+    
+    while(operation != 0){
+        operation = menu(operation);
+        if(operation == 2 && startup == false){
+            system("clear");
+            printf("Registro não encontrado!\n\n");
+        }
+        else{
+            if(operation == 1){
+                startup = start_Tree(&D);
+                file = fopen("arquivo.bin", "rb+");
+                if (!file){
+                    printf("Erro na abertura do arquivo. Fim de programa.");
+                    exit(1);
+                }
+                if(!startup){
+                    printf("Não foi possível inicializar a árvore !\n");
+                    exit(1);
+                }
+                else{
+                    do {
+                        ret = fread(&item_To_Search, sizeof(Item), 1, file);
+                        if (ret == 0) break;
+                        // inserir na arvore
+                        //printf("Inseriu!!\n");
+                        insert(item_To_Search, &D);
+                        // printf("%d\n", ret);
+                    } while (ret != 0);
+                    print_out(D, nivel);
+                    fclose(file);
+                }
+            }
+            if(operation == 2){
+                printf("Informe a chave do registro a ser pesquisado!\n");
+                scanf("%d", item_To_Search.key);
+                search_Item = Search(&item_To_Search, D);
+                if(!search_Item){
+                    printf("Item nao esta presente na arvore\n");
+                }
+                else if(search_Item){
+
+                }
+            }
+        }
     }
-    Testa(D);
     return 0;
 }

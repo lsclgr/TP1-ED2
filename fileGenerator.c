@@ -29,7 +29,7 @@ int main() {
         printf("Erro na abertura do arquivo. Fim de programa.");
         exit(1);
     }
-    int len = 5000, tam = 200000, ret, op = 0, keys[tam];
+    int len = 5000, tam = 20, ret, op = 0, keys[tam];
     info x;
     switch (op) {
         case 0:
