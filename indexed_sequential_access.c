@@ -12,11 +12,10 @@ void isam_create_index(Index *pIndex)
     FILE *fp = fopen("data.bin", "rb");
     test_file(fp);
 
-    fread(&pIndex->nPages, sizeof(int), 1, fp);
-    fread(&pIndex->arr[0], sizeof(Key), 1, fp);
-    for(int i = 0; i < (pIndex->nPages - 1); i++)
+    fread(&pIndex->nPages, sizeof(int), 1, fp); // 100 k d1 d2 k d1 d2
+    for(int i = 0; i < pIndex->nPages; i++)
     {
-        fseek(fp, (PAGE_SIZE - 1) * sizeof(Item), SEEK_CUR);
+        fseek(fp, (sizeof(Page) * i) + sizeof(int), SEEK_SET);
         fread(&pIndex->arr[i], sizeof(Key), 1, fp);
     }
 
@@ -31,7 +30,7 @@ Item* isam_binary_search(Key key, Page *page, int l, int r, int type)
         return NULL;
     else if(page->arr[m].key == key)
         return &page->arr[m];
-    else if((page->arr[m].key < key && type == 1) || (page->arr[m].key > key && type == 2))
+    else if((page->arr[m].key > key && type == 1) || (page->arr[m].key < key && type == 2))
         return isam_binary_search(key, page, l, m - 1, type);
     else
         return isam_binary_search(key, page, m + 1, r, type);
@@ -82,7 +81,7 @@ bool isam_item_search(Key key, Item *pItem, Index *pIndex, int status)
     Page page;
     int n_items;
 
-    fseek(fp, PAGE_SIZE * (i - 1) * sizeof(Item), SEEK_SET + sizeof(int));
+    fseek(fp, PAGE_SIZE * (i - 1) * sizeof(Item) + sizeof(int), SEEK_SET);
     if(i != pIndex->nPages)
     {
         fread(page.arr, sizeof(Page), 1, fp);
@@ -118,7 +117,71 @@ bool isam_item_search(Key key, Item *pItem, Index *pIndex, int status)
 int main()
 {
     srand(time(NULL));
+/*
+    const char LIST_OF_CHAR[] = "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    printf("%ld\n\n\n", strlen(LIST_OF_CHAR));
+*/
+    //build_file(100, PAGE_SIZE, 100, 4);
+/*
+    int n;
+    Page p;
+    FILE *fp = fopen("data.bin", "rb");
 
+    fread(&n, sizeof(int), 1, fp);
+    fread(&p, sizeof(Page), 1, fp);
+    for(int i = 0; i < PAGE_SIZE; i++)
+    {
+        printf("%ld\n", p.arr[i].data1);
+        for(int j = 0; j < strlen(p.arr[i].data2); j++)
+        {
+            if((int)p.arr[i].data2[j] == 127)
+                printf("#");
+            else
+                printf("%c", p.arr[i].data2[j]);
+        }
+        printf("\n%d\n\n", p.arr[i].key);
+    }
+
+    printf("char bugged: %d\n", (int)p.arr[2].data2[strlen(p.arr[2].data2) - 1]);
+*/
+ // test search
+    Index index;
+    index.arr = (Key*) malloc(100 * sizeof(Key));
+    index.nPages = 100;
+    isam_create_index(&index);
+
+    for(int i = 0; i < 100; i++)
+        printf("%d - %d\n", i, index.arr[i]);
+
+    Item item;
+    if(isam_item_search(20, &item, &index, 1))
+    {
+        printf("key = %d\n", item.key);
+        printf("d1 = %ld\n", item.data1);
+        printf("d2 = %s\n", item.data2);
+    }
+    else
+    {
+        printf("Item not found\n");
+    }
+
+    free(index.arr);
+
+/* // test 1st key
+    FILE *fp = fopen("data.bin", "rb");
+    int n;
+    Key k;
+
+    Index index;
+    index.arr = (Key*) malloc(100 * sizeof(Key));
+
+    fread(&n, sizeof(int), 1, fp);
+    fread(&index.arr[0], sizeof(Key), 1, fp);
+
+    printf("%d, %d\n", n, index.arr[0]);
+
+    free(index.arr);
+*/
     return 0;
 }
 

@@ -6,7 +6,7 @@
 
     #define PAGE_SIZE 4
     #define DATA1_MAX LONG_MAX
-    #define DATA2_SIZE 5000
+    #define DATA2_SIZE 64
     #define KEY_DIF 5
 
     typedef int Key;

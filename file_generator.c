@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <limits.h>
+#include <string.h>
 
 #include "file_generator.h"
 #include "indexed_sequential_access.h"
@@ -24,9 +25,17 @@ int rand_num_by_max(int max)
 
 void create_string(int max_size, char str[])
 {
+    const char LIST_OF_CHAR[] = "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const int LIST_SIZE = strlen(LIST_OF_CHAR);
+
     int size = rand_num_by_max(max_size);
-    for(int i = 0; i < size; i++)
-        str[i] = rand() % CHAR_MAX;
+    //for(int i = 0; i < (size + 4); i++)
+        //str[i] = '?';
+
+    for(int i = 0; i < size - 1; i++)
+        str[i] = LIST_OF_CHAR[rand() % LIST_SIZE];
+    
+    str[size - 1] = '\0';
 }
 
 void build_file(int nPages, int page_size, int data_max, int key_dif) // creates a file with random data
@@ -38,7 +47,7 @@ void build_file(int nPages, int page_size, int data_max, int key_dif) // creates
 
     Page page;
     page.arr[page_size - 1].key = 0;
-    for(int i = 0; i < (nPages - 1); i++)
+    for(int i = 0; i < (nPages/* - 1*/); i++)
     {
         page.arr[0].key = page.arr[page_size - 1].key + rand_num_by_max(key_dif);
         page.arr[0].data1 = rand_num_by_max(data_max);
@@ -46,7 +55,7 @@ void build_file(int nPages, int page_size, int data_max, int key_dif) // creates
         for(int j = 1; j < page_size; j++)
         {
             page.arr[j].data1 = rand_num_by_max(data_max);
-            create_string(DATA2_SIZE, page.arr[0].data2);
+            create_string(DATA2_SIZE, page.arr[j].data2);
             page.arr[j].key = page.arr[j - 1].key + rand_num_by_max(key_dif);
         }
 
