@@ -18,7 +18,7 @@ void test_file(FILE *fp)
 
 // Item item_constructor(int data, int key);
 
-int rand_num_by_max(long int max)
+long int rand_num_by_max(long int max)
 {
     return 1 + rand() % max;
 }

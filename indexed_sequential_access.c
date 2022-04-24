@@ -26,7 +26,7 @@ Item* isam_binary_search(Key key, Page *page, int l, int r, int type)
 {
     int m = (l + r) / 2;
 
-    if(page->arr[m].key != key && l == r)
+    if(page->arr[m].key != key && l >= r)
         return NULL;
     else if(page->arr[m].key == key)
         return &page->arr[m];
@@ -114,6 +114,27 @@ bool isam_item_search(Key key, Item *pItem, Index *pIndex, int status)
     }
 }
 
+void isam_auto_search(Index *pIndex, int file_type)
+{
+    int key_max = pIndex->arr[N_PAGES - 1];
+
+    for(int i = 0; i < 20; i++)
+    {
+        Item item;
+        Key key_search = rand_num_by_max(key_max);
+        if(isam_item_search(key_search, &item, pIndex, file_type))
+        {
+            printf("Item %d was found!\n", item.key);
+            printf("d1 = %ld\n", item.data1);
+            printf("d2 = %s\n\n", item.data2);
+        }
+        else
+        {
+            printf("Item %d not found...\n\n", key_search);
+        }
+    }
+}
+
 int main()
 {
     srand(time(NULL));
@@ -153,17 +174,8 @@ int main()
     //for(int i = 0; i < 100; i++)
         //printf("%d - %d\n", i, index.arr[i]);
 
-    Item item;
-    if(isam_item_search(901, &item, &index, 1))
-    {
-        printf("key = %d\n", item.key);
-        printf("d1 = %ld\n", item.data1);
-        printf("d2 = %s\n", item.data2);
-    }
-    else
-    {
-        printf("Item not found\n");
-    }
+    int file_type = 1;
+    isam_auto_search(&index, file_type);
 
     free(index.arr);
 

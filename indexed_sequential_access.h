@@ -5,7 +5,7 @@
     #include <stdbool.h>
 
     #define PAGE_SIZE 4
-    #define DATA1_MAX LONG_MAX
+    #define DATA1_MAX RAND_MAX
     #define DATA2_SIZE 64
     #define KEY_DIF 5
 
@@ -31,4 +31,5 @@
     Item* isam_linear_search(Key key, Page *page, int n_items);
     void isam_copy_item(Item *i1, Item *i2);
     bool isam_item_search(Key key, Item *pItem, Index *pIndex, int status);
+    void isam_auto_search(Index *pIndex, int file_type);
 #endif
