@@ -5,8 +5,11 @@
     
     #include "indexed_sequential_access.h"
 
+    #define N_PAGES 500000
+    #define FILE_MAX_SIZE (N_PAGES * PAGE_SIZE) + 1
+
     void test_file(FILE *fp);
-    int rand_num_by_max(int max);
+    int rand_num_by_max(long int max);
     void create_string(int max_size, char str[]);
-    void build_file(int nPages, int page_size, int data_max, int key_dif);
+    void build_file(int nPages, int page_size, long int data_max, int key_dif);
 #endif

@@ -12,7 +12,7 @@ void isam_create_index(Index *pIndex)
     FILE *fp = fopen("data.bin", "rb");
     test_file(fp);
 
-    fread(&pIndex->nPages, sizeof(int), 1, fp); // 100 k d1 d2 k d1 d2
+    fread(&pIndex->nPages, sizeof(int), 1, fp); 
     for(int i = 0; i < pIndex->nPages; i++)
     {
         fseek(fp, (sizeof(Page) * i) + sizeof(int), SEEK_SET);
@@ -121,7 +121,7 @@ int main()
     const char LIST_OF_CHAR[] = "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     printf("%ld\n\n\n", strlen(LIST_OF_CHAR));
 */
-    //build_file(100, PAGE_SIZE, 100, 4);
+    build_file(N_PAGES, PAGE_SIZE, DATA1_MAX, PAGE_SIZE);
 /*
     int n;
     Page p;
@@ -146,15 +146,15 @@ int main()
 */
  // test search
     Index index;
-    index.arr = (Key*) malloc(100 * sizeof(Key));
-    index.nPages = 100;
+    index.arr = (Key*) malloc(N_PAGES * sizeof(Key));
+    index.nPages = N_PAGES;
     isam_create_index(&index);
 
-    for(int i = 0; i < 100; i++)
-        printf("%d - %d\n", i, index.arr[i]);
+    //for(int i = 0; i < 100; i++)
+        //printf("%d - %d\n", i, index.arr[i]);
 
     Item item;
-    if(isam_item_search(20, &item, &index, 1))
+    if(isam_item_search(901, &item, &index, 1))
     {
         printf("key = %d\n", item.key);
         printf("d1 = %ld\n", item.data1);
