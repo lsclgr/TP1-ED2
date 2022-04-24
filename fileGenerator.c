@@ -1,12 +1,12 @@
 #include <limits.h>
 #include <stdio.h>
-#include <stdlib.h> /* Para a função exit() */
+#include <stdlib.h> 
 #include <time.h>
 
 typedef struct {
     int key;
     long int data1;
-    char *data2;
+    char data2[5000];
 } info;
 void gen_random(char *s, const int len, int timex) {
     srand(timex);
@@ -37,9 +37,10 @@ int main() {
                 srand(timex);
                 x.key = i;
                 x.data1 = rand() % LONG_MAX;
-                // printf("%lld\n", x.data1);
-                x.data2 = (char *)malloc(len * sizeof(char));
+                printf("%ld\n", x.data1);
+                
                 gen_random(x.data2, len, timex);
+                printf("%s\n", x.data2);
                 ret = fwrite(&x, sizeof(info), 1, arq);
                 // printf("salvo");
                 timex++;
@@ -51,7 +52,7 @@ int main() {
                 x.key = i;
                 x.data1 = rand() % LONG_MAX;
                 // printf("%lld\n", x.data1);
-                x.data2 = (char *)malloc(len * sizeof(char));
+                
                 gen_random(x.data2, len, timex);
                 ret = fwrite(&x, sizeof(info), 1, arq);
                 // printf("salvo");
@@ -75,7 +76,7 @@ int main() {
                 keys[i] = x.key;
                 x.data1 = rand() % LONG_MAX;
                 // printf("%lld\n", x.data1);
-                x.data2 = (char *)malloc(len * sizeof(char));
+               
                 gen_random(x.data2, len, timex);
                 ret = fwrite(&x, sizeof(info), 1, arq);
                 // printf("salvo");
