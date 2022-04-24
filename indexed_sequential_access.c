@@ -138,62 +138,19 @@ void isam_auto_search(Index *pIndex, int file_type)
 int main()
 {
     srand(time(NULL));
-/*
-    const char LIST_OF_CHAR[] = "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    printf("%ld\n\n\n", strlen(LIST_OF_CHAR));
-*/
+
     build_file(N_PAGES, PAGE_SIZE, DATA1_MAX, PAGE_SIZE);
-/*
-    int n;
-    Page p;
-    FILE *fp = fopen("data.bin", "rb");
 
-    fread(&n, sizeof(int), 1, fp);
-    fread(&p, sizeof(Page), 1, fp);
-    for(int i = 0; i < PAGE_SIZE; i++)
-    {
-        printf("%ld\n", p.arr[i].data1);
-        for(int j = 0; j < strlen(p.arr[i].data2); j++)
-        {
-            if((int)p.arr[i].data2[j] == 127)
-                printf("#");
-            else
-                printf("%c", p.arr[i].data2[j]);
-        }
-        printf("\n%d\n\n", p.arr[i].key);
-    }
-
-    printf("char bugged: %d\n", (int)p.arr[2].data2[strlen(p.arr[2].data2) - 1]);
-*/
- // test search
     Index index;
     index.arr = (Key*) malloc(N_PAGES * sizeof(Key));
     index.nPages = N_PAGES;
     isam_create_index(&index);
-
-    //for(int i = 0; i < 100; i++)
-        //printf("%d - %d\n", i, index.arr[i]);
 
     int file_type = 1;
     isam_auto_search(&index, file_type);
 
     free(index.arr);
 
-/* // test 1st key
-    FILE *fp = fopen("data.bin", "rb");
-    int n;
-    Key k;
-
-    Index index;
-    index.arr = (Key*) malloc(100 * sizeof(Key));
-
-    fread(&n, sizeof(int), 1, fp);
-    fread(&index.arr[0], sizeof(Key), 1, fp);
-
-    printf("%d, %d\n", n, index.arr[0]);
-
-    free(index.arr);
-*/
     return 0;
 }
 

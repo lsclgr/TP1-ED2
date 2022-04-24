@@ -16,8 +16,6 @@ void test_file(FILE *fp)
     }
 }
 
-// Item item_constructor(int data, int key);
-
 long int rand_num_by_max(long int max)
 {
     return 1 + rand() % max;
@@ -29,8 +27,6 @@ void create_string(int max_size, char str[])
     const int LIST_SIZE = strlen(LIST_OF_CHAR);
 
     int size = rand_num_by_max(max_size);
-    //for(int i = 0; i < (size + 4); i++)
-        //str[i] = '?';
 
     for(int i = 0; i < size - 1; i++)
         str[i] = LIST_OF_CHAR[rand() % LIST_SIZE];
@@ -38,7 +34,7 @@ void create_string(int max_size, char str[])
     str[size - 1] = '\0';
 }
 
-void build_file(int nPages, int page_size, long int data_max, int key_dif) // creates a file with random data
+void build_file(int nPages, int page_size, long int data_max, int key_dif) // creates a file with random ordered data
 {
     FILE *fp = fopen("data.bin", "wb");
     test_file(fp);
