@@ -36,7 +36,11 @@ typedef struct Page {
 /* Função responsável por inicializar a árvore
 onde e inicializada uma pagina externa com 0 registros armazenados*/
 bool start_Tree(Pointer *Dict) {
+<<<<<<< HEAD
     *Dict = (Page *)malloc(sizeof(Page));
+=======
+    Dict = (Page *)malloc(sizeof(Page));
+>>>>>>> 16ed429ea0981da0cd8752ffe9c9193fc2d05407
     (*Dict)->Pt = Externa;
     (*Dict)->UU.U1.ne = 0;
     return true;
@@ -73,6 +77,10 @@ bool Search(Item *x, Pointer *Ap) {
 /*Funcao para inserir itens em uma pagina interna*/
 void Insert_On_Intern_Page(Pointer Ap, Key key, Pointer ApDir) {
     if (Ap->Pt == Externa) return;
+<<<<<<< HEAD
+=======
+    short position;
+>>>>>>> 16ed429ea0981da0cd8752ffe9c9193fc2d05407
     int k;
     k = Ap->UU.U0.ni;
     int i = 1;
@@ -92,6 +100,7 @@ void Insert_On_Intern_Page(Pointer Ap, Key key, Pointer ApDir) {
     Ap->UU.U0.pi[i + 1] = ApDir;
     Ap->UU.U0.ni++;
 }
+<<<<<<< HEAD
 
 /*Funcao para inserir itens em uma pagina interna*/
 void Insert_On_Extern_Page(Pointer Ap, Item item, bool *Cresceu, Item *itemReturn, Pointer *ptReturn) {
@@ -146,6 +155,46 @@ void Insert_On_Extern_Page(Pointer Ap, Item item, bool *Cresceu, Item *itemRetur
         itemReturn->key = Ap->UU.U1.re[ORDER].key;
         *ptReturn = ApTemp;
         *Cresceu = TRUE;
+=======
+void Insert_On_Extern_Page(Pointer Ap, Item item, bool *Cresceu,
+                           Item *itemReturn, Pointer *ptReturn) {
+    if (Ap->Pt == Interna) return;
+    short position;
+    int k;
+    k = Ap->UU.U1.ne;
+    position = (k > 0);
+
+    if (k < DISQUETE) {
+        while (position) {
+            if (item.key >= Ap->UU.U1.re[k - 1].key) {
+                position = FALSE;
+                break;
+            }
+            Ap->UU.U1.re[k] = Ap->UU.U1.re[k - 1];
+            // Ap->p[k + 1] = Ap->p[k];
+            k--;
+            if (k < 1) position = FALSE;
+        }
+        Ap->UU.U1.re[k] = item;
+        // Ap->p[k + 1] = ApDir;
+        Ap->UU.U1.ne++;
+    } else {
+        if (i < ORDER + 1) {
+            Insert_On_Extern_Page(ApTemp, Ap->UU.U1.re[DISQUETE - 1]);
+            Ap->UU.U1.ne--;
+            Insert_On_Extern_Page(Ap, *itemReturn);
+        } else
+            Insert_On_Extern_Page(ApTemp, *itemReturn);
+
+        for (j = ORDER + 1; j <= DISQUETE; j++)
+            Insert_On_Extern_Page(ApTemp, Ap->UU.U1.re[j - 1]);
+
+        // Ap->UU.U1.ne = ORDER;
+        *itemReturn = Ap->UU.U1.re[i];
+        *ptReturn = ApTemp;
+        *Cresceu = TRUE;
+        return;
+>>>>>>> 16ed429ea0981da0cd8752ffe9c9193fc2d05407
     }
 }
 
@@ -153,7 +202,24 @@ void insert_Item(Item item, Pointer Ap, bool *Cresceu, Item *itemReturn, Pointer
     long i = 1;
     long j;
     Pointer ApTemp;
+<<<<<<< HEAD
 
+=======
+    // if (Ap == NULL) {
+    //     *Cresceu = TRUE;
+    //     (*itemReturn) = item;
+    //     // add tbm na pag externa
+    //     ApTemp = (Page *)malloc(sizeof(Page));
+    //     ApTemp->UU.U1.ne = 1;
+    //     ApTemp->UU.U1.re[0] = item;
+    //     ApTemp->Pt = Externa;
+    //     (*ptReturn) = ApTemp;
+    //     return;
+    // }
+    (*ptReturn) = ApTemp;
+    Pointer Pag;
+    Pag = Ap;
+>>>>>>> 16ed429ea0981da0cd8752ffe9c9193fc2d05407
     if (Ap->Pt == Interna) {
         // Laço responsável pela pesquisa dentro da pagina (semelhante à funcao "Search")
         while (i < Ap->UU.U0.ni && item.key > Ap->UU.U0.ri[i - 1]) i++;
@@ -167,10 +233,31 @@ void insert_Item(Item item, Pointer Ap, bool *Cresceu, Item *itemReturn, Pointer
             *Cresceu = FALSE;
             return;
         }
+<<<<<<< HEAD
         // Caso a pagina esteja cheia
         // e criada uma nova pagina interna temporaria apontando para null
         ApTemp = (Pointer)malloc(sizeof(Page));
         ApTemp->Pt = Interna;
+=======
+    }
+
+    if (Ap->Pt == Interna && item.key < Ap->UU.U0.ri[i - 1]) {
+        insert_Item(item, Ap->UU.U0.pi[--i], Cresceu, itemReturn, ptReturn);
+    }
+    if (Ap->Pt == Externa && item.key < Ap->UU.U1.re[i - 1].key) {
+        insert_Item(item, Ap->UU.U0.pi[--i], Cresceu, itemReturn, ptReturn);
+    }
+    if (!*Cresceu) return;
+
+    if (Ap->UU.U1.ne < DISQUETE) { /* Pagina tem espaco */
+        Insert_On_Extern_Page(Ap, *itemReturn);
+        *Cresceu = FALSE;
+        return;
+    }
+    /* Overflow: Pagina tem que ser dividida */
+    if (Ap->Pt == Interna) {
+        ApTemp = (Page *)malloc(sizeof(Page));
+>>>>>>> 16ed429ea0981da0cd8752ffe9c9193fc2d05407
         ApTemp->UU.U0.ni = 0;
         ApTemp->UU.U0.pi[0] = NULL;
 
@@ -201,9 +288,31 @@ void insert_Item(Item item, Pointer Ap, bool *Cresceu, Item *itemReturn, Pointer
         itemReturn->key = Ap->UU.U0.ri[ORDER];
         *ptReturn = ApTemp;
         *Cresceu = TRUE;
+<<<<<<< HEAD
     } else {
         // caso a pagina seja externa, a funcao de inserir na pagina externa e chamada
         Insert_On_Extern_Page(Ap, item, Cresceu, itemReturn, ptReturn);
+=======
+        return;
+    } else {
+        ApTemp = (Page *)malloc(sizeof(Page));
+        ApTemp->UU.U1.ne = 0;
+        if (i < ORDER + 1) {
+            Insert_On_Extern_Page(ApTemp, Ap->UU.U1.re[DISQUETE - 1]);
+            Ap->UU.U1.ne--;
+            Insert_On_Extern_Page(Ap, *itemReturn);
+        } else
+            Insert_On_Extern_Page(ApTemp, *itemReturn);
+
+        for (j = ORDER + 1; j <= DISQUETE; j++)
+            Insert_On_Extern_Page(ApTemp, Ap->UU.U1.re[j - 1]);
+
+        Ap->UU.U1.ne = ORDER;
+        *itemReturn = Ap->UU.U1.re[ORDER];
+        *ptReturn = ApTemp;
+        *Cresceu = TRUE;
+        return;
+>>>>>>> 16ed429ea0981da0cd8752ffe9c9193fc2d05407
     }
 }
 
@@ -219,15 +328,13 @@ void insert(Item item, Pointer *Ap) {
         ApTemp = (Page *)malloc(sizeof(Page));
         ApTemp->UU.U0.ni = 1;
         ApTemp->UU.U0.ri[0] = itemReturn.key;
-        ApTemp->UU.U0.pi[1] = ptReturn;
         ApTemp->UU.U0.pi[0] = *Ap;
+        ApTemp->UU.U0.pi[1] = ptReturn;
         ApTemp->Pt = Interna;
         *Ap = ApTemp;
     }
 }
 void print_out(Pointer p, int nivel) {
-    int i;
-
     if (p->Pt == Externa) {  // Caso base da recursão, quando o apontador chega
         // em uma folha
         printf("Externa: ", (nivel + 1));
@@ -242,14 +349,19 @@ void print_out(Pointer p, int nivel) {
     // } else
     printf("Altura %d : ", nivel);
 
+<<<<<<< HEAD
     for (i = 0; i < p->UU.U0.ni; i++) {  // Laço que imprime todos os registros da pagina
+=======
+    for (int i = 0; i < p->UU.U0.ni;
+         i++) {  // Laço que imprime todos os registros da pagina
+>>>>>>> 16ed429ea0981da0cd8752ffe9c9193fc2d05407
         printf("%d ", p->UU.U0.ri[i]);
     }
 
     printf("\n");
     nivel++;
 
-    for (i = 0; i <= p->UU.U0.ni;
+    for (int i = 0; i <= p->UU.U0.ni;
          i++) {  // Laço que chama recursivamente a funcao
                  // mandando como parametro o endereço
         print_out(p->UU.U0.pi[i],
@@ -299,6 +411,12 @@ int main() {
                         if (ret == 0) break;
                         // inserir na arvore
                         insert(item_To_Insert, &D);
+<<<<<<< HEAD
+=======
+                        print_out(D, nivel);
+                        // printf("%d\n", ret);
+                    } while (ret != 0);
+>>>>>>> 16ed429ea0981da0cd8752ffe9c9193fc2d05407
 
                         // printf("Inseriu!\nDados:\nChave: %d\nDado 1: %ld\nDado 2: %s\n", item_To_Insert.key, item_To_Insert.data1, item_To_Insert.data2);
                         //  printf("%d\n", ret);
@@ -314,7 +432,15 @@ int main() {
                 if (!search_Item || item_To_Search.data2[0] == '0') {
                     printf("Item nao esta presente na arvore\n");
                 } else if (search_Item) {
+<<<<<<< HEAD
                     printf("Registro encontrado!\nDados:\n Chave: %d\nDado 1: %ld\nDado 2: %s\n", item_To_Search.key, item_To_Search.data1, item_To_Search.data2);
+=======
+                    printf(
+                        "Registro encontrado!\nDados:\n Chave: %d\nDado 1: "
+                        "%ld\nDado 2: %s\n",
+                        item_To_Search.key, item_To_Search.data1,
+                        item_To_Search.data2);
+>>>>>>> 16ed429ea0981da0cd8752ffe9c9193fc2d05407
                 }
             }
         }
