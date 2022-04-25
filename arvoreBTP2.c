@@ -44,8 +44,10 @@ bool Search(Item *item, Pointer Ap) {
     }
     if (item->key == Ap->r[i - 1].key) {                        // Condicional responsável por analisar se a cave do registro analisado é igual a do solicitado
         *item = Ap->r[i - 1];
-        printf("%d\n",Ap->r[i - 1].key);
-        exit(1);
+        // printf("%d\n%ld\n%s",Ap->r[i - 1].key,Ap->r[i - 1].data1,Ap->r[i - 1].data2);
+        // exit(1);
+        // printf("%d\n%ld\n%s",item->key,item->data1,item->data2);
+        // exit(1);
         return true;
     }
     if (item->key < Ap->r[i - 1].key)                           // Chama a funcao recursivamente continuando
@@ -219,14 +221,12 @@ int main(int argc, char *argv[]) {
             if(operation == 2){
                 printf("Informe a chave do registro a ser pesquisado!\n");
                 scanf("%d", &item_To_Search.key);
-                printf("Opa\n");
-                exit(1);
                 search_Item = Search(&item_To_Search, D);
                 if(!search_Item){
                     printf("Item nao esta presente na arvore\n");
                 }
                 else if(search_Item){
-                    printf("Registro encontrado!\nDados:\n Chave: %d\nDado 1: %ld\nDado 2: \n", item_To_Search.key,item_To_Search.data1);
+                    printf("Registro encontrado!\nDados:\n\nChave: %d\nDado 1: %ld\nDado 2:%s\n", item_To_Search.key,item_To_Search.data1,item_To_Search.data2);
                 }
             }
         }
