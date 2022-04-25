@@ -1,16 +1,17 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#define order 2
-#define Disquete (order * 2)
+#define ORDER 2
+#define DISQUETE (ORDER * 2)
 #define FALSE 0
 #define TRUE 1
+#define LEN 2000
 
 typedef int Key;
 typedef struct Item {
     Key key;
     long int data1;
-    char *data2;
+    char data2[LEN];
 } Item;
 typedef enum { Interna, Externa } TipoIntExt;
 typedef struct Page *Pointer;
@@ -19,17 +20,23 @@ typedef struct Page {
     union {
         struct {
             int ni;
-            Key ri[order];
-            Pointer pi[order + 1];
+            Key ri[ORDER];
+            Pointer pi[ORDER + 1];
         } U0;
         struct {
             int ne;
-            Item re[Disquete];
+            Item re[DISQUETE];
         } U1;
     } UU;
 } Page;
 
-void Search(Item *x, Pointer *Ap) {
+/* Função responsável por inicializar a árvore */
+bool start_Tree(Pointer *Dict) {
+    *Dict = NULL;
+    return true;
+}
+
+bool Search(Item *x, Pointer *Ap) {
     int i;
     Pointer Pag;
     Pag = *Ap;
@@ -40,53 +47,57 @@ void Search(Item *x, Pointer *Ap) {
             Search(x, &Pag->UU.U0.pi[i - 1]);
         else
             Search(x, &Pag->UU.U0.pi[i]);
-        return;
+        return true;
     } else {
         i = 1;
         while (i < Pag->UU.U1.ne && x->key > Pag->UU.U1.re[i - 1].key) i++;
         if (x->key == Pag->UU.U1.re[i - 1].key)
             *x = Pag->UU.U1.re[i - 1];
-        else
-            printf("Item nao esta presente na arvore\n");
+        else {
+            return false;
+        }
     }
+    return false;
 }
 
-void Insert_On_Page(Pointer Ap, Item item, Pointer ApDir) {
+void Insert_On_Intern_Page(Pointer Ap, Key key, Pointer ApDir) {
+    short position;
+    int k;
+    k = Ap->UU.U0.ni;
+    position = (k > 0);
+    while (position) {
+        if (key >= Ap->UU.U0.ri[k - 1]) {
+            position = FALSE;
+            break;
+        }
+        Ap->UU.U0.ri[k] = Ap->UU.U0.ri[k - 1];
+        Ap->UU.U0.pi[k + 1] = Ap->UU.U0.pi[k];
+        k--;
+        if (k < 1) position = FALSE;
+    }
+    Ap->UU.U0.ri[k] = key;
+    Ap->UU.U0.pi[k + 1] = ApDir;
+    Ap->UU.U0.ni++;
+}
+void Insert_On_Extern_Page(Pointer Ap, Item item) {
     short position;
     int k;
     k = Ap->UU.U1.ne;
     position = (k > 0);
-    if (Ap->Pt == Interna) {
-        k = Ap->UU.U0.ni;
-        position = (k > 0);
-        while (position) {
-            if (item.key >= Ap->UU.U0.ri[k - 1].key) {
-                position = FALSE;
-                break;
-            }
-            Ap->UU.U0.ri[k] = Ap->UU.U0.ri[k - 1];
-            Ap->UU.U0.pi[k + 1] = Ap->UU.U0.pi[k];
-            k--;
-            if (k < 1) position = FALSE;
+
+    while (position) {
+        if (item.key >= Ap->UU.U1.re[k - 1].key) {
+            position = FALSE;
+            break;
         }
-        Ap->UU.U0.ri[k] = item;
-        Ap->UU.U0.pi[k + 1] = ApDir;
-        Ap->UU.U0.ni++;
-    } else {
-        while (position) {
-            if (item.key >= Ap->UU.U1.re[k - 1].key) {
-                position = FALSE;
-                break;
-            }
-            Ap->UU.U1.re[k] = Ap->UU.U1.re[k - 1];
-            // Ap->p[k + 1] = Ap->p[k];
-            k--;
-            if (k < 1) position = FALSE;
-        }
-        Ap->UU.U1.re[k] = item;
-        // Ap->p[k + 1] = ApDir;
-        Ap->UU.U1.ne++;
+        Ap->UU.U1.re[k] = Ap->UU.U1.re[k - 1];
+        // Ap->p[k + 1] = Ap->p[k];
+        k--;
+        if (k < 1) position = FALSE;
     }
+    Ap->UU.U1.re[k] = item;
+    // Ap->p[k + 1] = ApDir;
+    Ap->UU.U1.ne++;
 }
 
 void insert_Item(Item item, Pointer Ap, bool *Cresceu, Item *itemReturn,
@@ -102,7 +113,7 @@ void insert_Item(Item item, Pointer Ap, bool *Cresceu, Item *itemReturn,
         ApTemp->UU.U1.ne = 1;
         ApTemp->UU.U1.re[0] = item;
         ApTemp->Pt = Externa;
-        (*ptReturn) = &ApTemp;
+        (*ptReturn) = ApTemp;
         return;
     }
 
@@ -119,35 +130,54 @@ void insert_Item(Item item, Pointer Ap, bool *Cresceu, Item *itemReturn,
         }
     }
 
-    if (item.key < Ap->r[i - 1].key) i--;
-    insert_Item(item, Ap->p[i], Cresceu, itemReturn, ptReturn);
+    if (Ap->Pt == Interna && item.key < Ap->UU.U0.ri[i - 1]) {
+        insert_Item(item, Ap->UU.U0.pi[--i], Cresceu, itemReturn, ptReturn);
+    }
     if (!*Cresceu) return;
 
-    if (Ap->n < Disquete) /* Pagina tem espaco */
-    {
-        Insert_On_Page(Ap, *itemReturn, *ptReturn);
+    if (Ap->UU.U1.ne < DISQUETE) { /* Pagina tem espaco */
+        Insert_On_Extern_Page(Ap, *itemReturn);
         *Cresceu = FALSE;
         return;
     }
     /* Overflow: Pagina tem que ser dividida */
-    ApTemp = (Pointer)malloc(sizeof(Page));
-    ApTemp->n = 0;
-    ApTemp->p[0] = NULL;
+    if (Ap->Pt == Interna) {
+        ApTemp = (Pointer)malloc(sizeof(Page));
+        ApTemp->UU.U0.ni = 0;
+        ApTemp->UU.U0.pi[0] = NULL;
 
-    if (i < order + 1) {
-        Insert_On_Page(ApTemp, Ap->r[Disquete - 1], Ap->p[Disquete]);
-        Ap->n--;
-        Insert_On_Page(Ap, *itemReturn, *ptReturn);
-    } else
-        Insert_On_Page(ApTemp, *itemReturn, *ptReturn);
+        if (i < ORDER + 1) {
+            Insert_On_Intern_Page(ApTemp, Ap->UU.U0.ri[DISQUETE - 1],
+                                  Ap->UU.U0.pi[DISQUETE]);
+            Ap->UU.U0.ni--;
+            Insert_On_Intern_Page(Ap, itemReturn->key, *ptReturn);
+        } else
+            Insert_On_Intern_Page(ApTemp, itemReturn->key, *ptReturn);
 
-    for (j = order + 2; j <= Disquete; j++)
-        Insert_On_Page(ApTemp, Ap->r[j - 1], Ap->p[j]);
+        for (j = ORDER + 2; j <= DISQUETE; j++)
+            Insert_On_Intern_Page(ApTemp, Ap->UU.U0.ri[j - 1], Ap->UU.U0.pi[j]);
 
-    Ap->n = order;
-    ApTemp->p[0] = Ap->p[order + 1];
-    *itemReturn = Ap->r[order];
-    *ptReturn = ApTemp;
+        Ap->UU.U0.ni = ORDER;
+        ApTemp->UU.U0.pi[0] = Ap->UU.U0.pi[ORDER + 1];
+        itemReturn->key = Ap->UU.U0.ri[ORDER];
+        *ptReturn = ApTemp;
+    } else {
+        ApTemp = (Pointer)malloc(sizeof(Page));
+        ApTemp->UU.U1.ne = 0;
+        if (i < ORDER + 1) {
+            Insert_On_Extern_Page(ApTemp, Ap->UU.U1.re[DISQUETE - 1]);
+            Ap->UU.U1.ne--;
+            Insert_On_Extern_Page(Ap, *itemReturn);
+        } else
+            Insert_On_Extern_Page(ApTemp, *itemReturn);
+
+        for (j = ORDER + 1; j <= DISQUETE; j++)
+            Insert_On_Extern_Page(ApTemp, Ap->UU.U1.re[j - 1]);
+
+        Ap->UU.U1.ne = ORDER;
+        *itemReturn = Ap->UU.U1.re[ORDER];
+        *ptReturn = ApTemp;
+    }
 }
 
 void insert(Item item, Pointer *Ap) {
@@ -159,11 +189,105 @@ void insert(Item item, Pointer *Ap) {
     {
         ApTemp = (Page *)malloc(sizeof(Page));
         ApTemp->UU.U0.ni = 1;
-        ApTemp->UU.U0.ri[0] = itemReturn;
+        ApTemp->UU.U0.ri[0] = itemReturn.key;
         ApTemp->UU.U0.pi[1] = ptReturn;
         ApTemp->UU.U0.pi[0] = *Ap;
         ApTemp->Pt = Interna;
         *Ap = ApTemp;
     }
 }
-int main(int argc, char *argv[]) { return 0; }
+void print_out(Pointer p, int nivel) {
+    int i;
+
+    if (p->Pt == Externa) {  // Caso base da recursão, quando o apontador chega
+        // em uma folha
+        printf("Externa: ");
+        for (int i = 0; i < p->UU.U1.ne; i++) {
+            printf("%d ", p->UU.U1.re[i].key);
+        }
+        return;
+    }
+
+    printf("Altura %d : ", nivel);
+
+    for (i = 0; i < p->UU.U0.ni;
+         i++) {  // Laço que imprime todos os registros da pagina
+        printf("%d ", p->UU.U0.ri[i]);
+    }
+
+    printf("\n");
+    nivel++;
+
+    for (i = 0; i <= p->UU.U0.ni;
+         i++) {  // Laço que chama recursivamente a funcao
+                 // mandando como parametro o endereço
+        print_out(p->UU.U0.pi[i],
+                  nivel);  // de memoria da pagina filho mais a esquerda até o
+                           // mais à direita e o nível posterior
+    }
+}
+
+int menu(int operation) {
+    printf(
+        "Informe qual operacao deseja realizar:\n\n1 - Carregar arquivo\n2 - "
+        "Pesquisar registro\n0 - Finalizar\n");
+    scanf("%d", &operation);
+
+    return operation;
+}
+
+int main() {
+    Item item_To_Search, item_To_Insert;
+    Page *D;
+    FILE *file;
+    bool startup = false, search_Item;
+    int operation = -1, ret, nivel = 0;
+
+    while (operation != 0) {
+        operation = menu(operation);
+        if (operation == 2 && startup == false) {
+            system("clear");
+            printf("Registro não encontrado!\n\n");
+        } else {
+            if (operation == 1) {
+                startup = start_Tree(&D);
+                file = fopen("arquivo.bin", "rb+");
+                if (!file) {
+                    printf("Erro na abertura do arquivo. Fim de programa.");
+                    exit(1);
+                }
+                if (!startup) {
+                    printf("Não foi possível inicializar a árvore !\n");
+                    exit(1);
+                } else {
+                    do {
+                        ret = fread(&item_To_Insert, sizeof(Item), 1, file);
+                        if (ret == 0) break;
+                        // inserir na arvore
+                        // printf("Inseriu!!\n");
+                        insert(item_To_Insert, &D);
+                        // printf("%d\n", ret);
+                    } while (ret != 0);
+
+                    print_out(D, nivel);
+                    fclose(file);
+                }
+            }
+            if (operation == 2) {
+                printf("Informe a chave do registro a ser pesquisado!\n");
+                scanf("%d", &item_To_Search.key);
+                search_Item = Search(&item_To_Search, &D);
+                if (!search_Item) {
+                    printf("Item nao esta presente na arvore\n");
+                } else if (search_Item) {
+                    printf(
+                        "Registro encontrado!\nDados:\n Chave: %d\nDado 1: "
+                        "%ld\nDado 2: %s\n",
+                        item_To_Search.key, item_To_Search.data1,
+                        item_To_Insert.data2);
+                }
+            }
+        }
+    }
+    return 0;
+}
