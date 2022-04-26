@@ -1,12 +1,12 @@
 #include <limits.h>
 #include <stdio.h>
-#include <stdlib.h> 
+#include <stdlib.h>
 #include <time.h>
 
 typedef struct {
     int key;
     long int data1;
-    char data2[5000];
+    char data2[2000];
 } info;
 void gen_random(char *s, const int len, int timex) {
     srand(timex);
@@ -29,7 +29,7 @@ int main() {
         printf("Erro na abertura do arquivo. Fim de programa.");
         exit(1);
     }
-    int len = 6, tam = 20, ret, op = 0, keys[tam];
+    int len = 2000, tam = 2000000, ret, op = 2, keys[tam];
     info x;
     switch (op) {
         case 0:
@@ -37,10 +37,10 @@ int main() {
                 srand(timex);
                 x.key = i;
                 x.data1 = rand() % LONG_MAX;
-                printf("%ld\n", x.data1);
-                
+                // printf("%ld\n", x.data1);
+
                 gen_random(x.data2, len, timex);
-                printf("%s\n", x.data2);
+                // printf("%s\n", x.data2);
                 ret = fwrite(&x, sizeof(info), 1, arq);
                 // printf("salvo");
                 timex++;
@@ -52,7 +52,7 @@ int main() {
                 x.key = i;
                 x.data1 = rand() % LONG_MAX;
                 // printf("%lld\n", x.data1);
-                
+
                 gen_random(x.data2, len, timex);
                 ret = fwrite(&x, sizeof(info), 1, arq);
                 // printf("salvo");
@@ -66,17 +66,19 @@ int main() {
                 int verify = 1;
                 while (verify) {
                     verify = 0;
-                    for (int j = 0; j < i; i++) {
+                    for (int j = 0; j < i; j++) {
                         if (keys[j] == x.key) {
                             verify = 1;
+                            break;
                         }
                     }
                     x.key = rand() % INT_MAX;
                 }
                 keys[i] = x.key;
+                printf("tam: %d\n", i);
                 x.data1 = rand() % LONG_MAX;
                 // printf("%lld\n", x.data1);
-               
+
                 gen_random(x.data2, len, timex);
                 ret = fwrite(&x, sizeof(info), 1, arq);
                 // printf("salvo");
@@ -87,7 +89,6 @@ int main() {
         default:
             break;
     }
-
     fclose(arq);
 
     return 0;
